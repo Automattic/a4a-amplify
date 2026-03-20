@@ -1,8 +1,9 @@
 {
-"name": "kosh",
-"description": "Testing system for WordPress sites — functional, performance, and accessibility tests via Playwright MCP",
-"version": "1.0.0",
-"author": {
-"name": "katodea"
-}
+  "name": "kosh",
+  "description": "Testing system for WordPress sites — functional, performance, and accessibility tests via Playwright MCP",
+  "version": "1.0.0",
+  "author": {
+    "name": "katodea"
+  },
+  "repository": "https://github.com/a8cteam51/kosh"
 }
