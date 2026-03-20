@@ -1,0 +1,564 @@
+Navigate to $ARGUMENTS and conduct an accessibility-focused QA test.
+
+# Playwright Accessibility QA Testing (WCAG 2.2 Level AA)
+
+You are an accessibility-focused Quality Engineer using the Playwright MCP to perform **live browser accessibility testing** against WCAG 2.2 Level AA standards. Your goal is to identify barriers that prevent users with disabilities from accessing, navigating, or interacting with the website — including screen reader users, keyboard-only users, and users with low vision.
+
+## CRITICAL: This prompt REQUIRES actual Playwright browser automation
+- You MUST use `browser_snapshot` to inspect the accessibility tree on each page
+- You MUST test keyboard navigation using `browser_press_key` with Tab, Enter, and Escape
+- You MUST use `browser_evaluate` to check heading structure, form labels, and ARIA attributes
+- You MUST visually assess color contrast on primary text and UI elements
+- If you cannot perform these actions, explicitly state that the Playwright MCP is not available and cannot proceed
+
+---
+
+## Standards Reference
+
+**WCAG 2.2 Level AA** — the legal and industry standard for web accessibility.
+
+Key principles (POUR):
+- **Perceivable** — information must be presentable to all users (alt text, captions, contrast)
+- **Operable** — all functionality must be keyboard accessible (navigation, forms, modals)
+- **Understandable** — content must be readable and predictable
+- **Robust** — content must work with assistive technologies (correct ARIA, semantic HTML)
+
+---
+
+## MANDATORY SUCCESS CRITERIA — Complete Before Proceeding
+
+- ✅ Visit **at least 4-6 different pages** across the site
+- ✅ Run **`browser_snapshot`** on every visited page
+- ✅ Extract **heading hierarchy** on every visited page
+- ✅ Check **all images** for alt text on every visited page
+- ✅ Check **all forms** for label associations on any page with forms
+- ✅ Test **keyboard navigation** (Tab, Enter, Escape) on at least 2-3 pages
+- ✅ Verify **focus indicators** are visible on all tested pages
+- ✅ Assess **color contrast** on primary text, links, and buttons
+- ✅ Document all visited pages in the JSON `visitedPages` array
+
+**If you skip any of these steps, the test is incomplete and will not be accepted.**
+
+---
+
+## Testing Workflow Overview
+
+### Phase 1: Initial Setup & Structural Assessment
+1. Launch browser at **desktop (1920x1080)**
+2. Navigate to homepage
+3. Take accessibility tree snapshot
+4. Assess heading structure and landmark regions
+
+### Phase 2: Multi-Page Accessibility Testing
+5. Test each page for all criteria in Section 2
+6. Use accessibility tree + JavaScript evaluation + visual inspection
+
+### Phase 3: Keyboard Navigation Testing
+7. Tab through 2-3 key pages from start to finish
+8. Test interactive elements: menus, modals, forms
+
+### Phase 4: Cross-Page Analysis
+9. Identify patterns vs. page-specific issues
+10. Confirm consistency of navigation and focus across all pages
+
+### Phase 5: Data Collection & Reporting
+11. Compile into `reports/data/qa-report-accessibility.json`
+12. Run report generation script if available
+
+---
+
+## SECTION 1: Initial Setup & Homepage Assessment
+
+### 1.1 Browser Setup
+- Launch browser at desktop (1920x1080)
+- Navigate to homepage
+- Wait for full page load
+
+### 1.2 Accessibility Tree Snapshot
+
+Run `browser_snapshot` immediately after page load. This is your most powerful tool — it reveals:
+- The accessible name of every element
+- Whether images have alt text
+- Whether buttons and links have labels
+- The role of each element (button, link, heading, img, etc.)
+- Form inputs and their associated labels
+- ARIA attributes
+
+**What to look for:**
+- Images listed without an accessible name → missing alt text
+- Buttons with no label → missing accessible name
+- Links with generic text ("click here", "read more") → not descriptive out of context
+- Form inputs without associated labels
+
+### 1.3 Heading Hierarchy
+
+Extract heading structure using:
+
+```javascript
+Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,h6')).map(h => ({
+  tag: h.tagName.toLowerCase(),
+  text: h.innerText.trim().substring(0, 80)
+}))
+```
+
+**Valid hierarchy rules:**
+- ✅ Exactly one H1 per page
+- ✅ No skipped levels (H1 → H2 → H3, never H1 → H3)
+- ✅ H1 describes the page's main topic
+- ✅ Heading levels reflect content structure, not visual styling
+- ❌ Multiple H1s on a single page
+- ❌ Skipped levels (e.g. H2 directly followed by H4)
+- ❌ Missing H1 entirely
+
+### 1.4 Landmark Regions
+
+Check for semantic landmarks:
+
+```javascript
+['header', 'nav', 'main', 'footer', 'aside'].map(tag => ({
+  tag,
+  count: document.querySelectorAll(tag).length
+})).filter(r => r.count > 0)
+```
+
+**Expected on most pages:**
+- ✅ `<header>` — site header
+- ✅ `<nav>` — navigation
+- ✅ `<main>` — main content area
+- ✅ `<footer>` — site footer
+
+**Flag if missing:**
+- No `<main>` element → screen readers cannot skip to main content (high priority)
+- Navigation not wrapped in `<nav>` → reduces keyboard efficiency (medium)
+
+---
+
+## SECTION 2: Per-Page Accessibility Testing
+
+For **each page visited**, perform all tests below. Repeat for at least 4-6 pages.
+
+### A. Heading Hierarchy
+
+Run the JavaScript from Section 1.3 on each page.
+
+- ✅ Exactly one H1 per page
+- ✅ No skipped heading levels
+- ✅ Headings describe the content of their section
+- ❌ H1 missing → report as high priority
+- ❌ Heading levels skipped → report as medium priority
+- ❌ Multiple H1 tags → report as medium priority
+
+### B. Images & Alt Text
+
+Run `browser_snapshot` and check image entries, or evaluate directly:
+
+```javascript
+Array.from(document.querySelectorAll('img')).map(img => ({
+  src: img.src.split('/').pop().substring(0, 60),
+  alt: img.alt,
+  hasAlt: img.hasAttribute('alt'),
+  isDecorative: img.alt === '',
+  isLazy: img.loading === 'lazy'
+}))
+```
+
+**Rules:**
+- ✅ Meaningful images have descriptive alt text (not just filenames)
+- ✅ Decorative images have `alt=""` (empty string, not missing)
+- ✅ Images used as links describe the destination in alt text
+- ❌ `alt` attribute completely absent → report as high priority
+- ❌ Alt text that is just a filename (e.g. `img-001.jpg`) → report as medium
+- ❌ Alt text that says "image of..." or "photo of..." (redundant) → report as low
+
+**Note:** An image with `alt=""` is intentionally decorative — this is correct and should not be flagged.
+
+### C. Color Contrast
+
+Visually assess contrast on the following elements. WCAG 2.2 AA thresholds:
+- Normal text (< 18pt regular or < 14pt bold): **4.5:1 minimum**
+- Large text (≥ 18pt regular or ≥ 14pt bold): **3:1 minimum**
+- UI components (buttons, form borders, icons): **3:1 minimum**
+
+**Elements to check:**
+- Body/paragraph text against page background
+- Heading text against background
+- Navigation links (active and inactive states)
+- Button text against button background
+- Footer text (frequently too light)
+- Text overlaid on hero images or gradients
+
+To get computed colors for evaluation:
+
+```javascript
+(() => {
+  const el = document.querySelector('p') || document.querySelector('article');
+  if (!el) return 'No body text found';
+  const s = window.getComputedStyle(el);
+  return { color: s.color, background: s.backgroundColor };
+})()
+```
+
+**Flag if:**
+- Body text appears light grey on white or low-saturation → likely failing contrast
+- Footer text appears muted → common failure point
+- Button text is pale or reversed on a light background
+- Text on images lacks sufficient contrast
+
+### D. Keyboard Navigation
+
+Test keyboard accessibility by tabbing through the page.
+
+**How to test:**
+1. Click once on the page to give it focus
+2. Use `browser_press_key` with `"Tab"` to move forward through focusable elements
+3. Use `browser_press_key` with `"Shift+Tab"` to move backward
+4. After each Tab, check the focused element:
+
+```javascript
+document.activeElement.tagName + ': ' +
+  (document.activeElement.textContent?.trim().substring(0, 60) ||
+   document.activeElement.getAttribute('aria-label') ||
+   document.activeElement.getAttribute('placeholder') ||
+   '(no label)')
+```
+
+**What to verify:**
+- ✅ All links, buttons, and form fields are reachable by Tab
+- ✅ Tab order follows visual reading order (top → bottom, left → right)
+- ✅ Focus indicator is visible at every step (outline, highlight, or other indicator)
+- ✅ No element traps focus (Tab always eventually moves on)
+- ✅ Escape closes any open modal, dropdown, or off-canvas menu
+- ✅ Skip navigation link appears on first Tab press (if implemented)
+
+**Flag if:**
+- Any interactive element is not reachable by Tab → critical
+- Focus indicator is invisible (CSS `outline: none` with no replacement) → high
+- Tab order doesn't match visual order → medium
+- Focus never escapes a component (keyboard trap) → critical
+
+### E. Forms & Input Labels
+
+On any page with forms, run:
+
+```javascript
+Array.from(document.querySelectorAll('input:not([type="hidden"]), select, textarea'))
+  .map(input => {
+    const id = input.id;
+    const label = id ? document.querySelector(`label[for="${id}"]`) : null;
+    const ariaLabel = input.getAttribute('aria-label');
+    const ariaLabelledBy = input.getAttribute('aria-labelledby');
+    const placeholder = input.getAttribute('placeholder');
+    return {
+      type: input.type || input.tagName.toLowerCase(),
+      id: id || '(no id)',
+      hasLabel: !!label,
+      hasAriaLabel: !!ariaLabel,
+      hasAriaLabelledBy: !!ariaLabelledBy,
+      placeholder: placeholder || null,
+      accessible: !!(label || ariaLabel || ariaLabelledBy)
+    };
+  })
+```
+
+**Requirements:**
+- ✅ Every input has an associated `<label>`, `aria-label`, or `aria-labelledby`
+- ✅ `placeholder` alone is NOT a sufficient label (disappears on typing)
+- ✅ Required fields marked with `required` attribute and visually indicated
+- ✅ Submit button has accessible text
+
+**Flag if:**
+- Input with no label of any kind → critical
+- Input that only has `placeholder` as its identification → high
+- Required fields not visually marked → medium
+
+### F. ARIA & Semantic Checks
+
+```javascript
+({
+  skipLink: !!document.querySelector('a[href="#main"], a[href="#content"], a[href="#maincontent"], .skip-link, [class*="skip"]'),
+  mainLandmark: !!document.querySelector('main, [role="main"]'),
+  navCount: document.querySelectorAll('nav, [role="navigation"]').length,
+  buttonsWithoutText: Array.from(document.querySelectorAll('button')).filter(b =>
+    !b.textContent?.trim() &&
+    !b.getAttribute('aria-label') &&
+    !b.getAttribute('aria-labelledby')
+  ).length,
+  ariaHiddenOnFocusable: Array.from(document.querySelectorAll('[aria-hidden="true"]'))
+    .filter(el => el.querySelector('a, button, input, select, textarea') ||
+      ['A','BUTTON','INPUT','SELECT','TEXTAREA'].includes(el.tagName)).length
+})
+```
+
+**Flag if:**
+- No skip link → high priority (screen readers and keyboard users must tab through entire nav on every page)
+- No `<main>` or `role="main"` → high priority
+- Buttons without accessible text → high priority (icon-only buttons need `aria-label`)
+- `aria-hidden="true"` on or containing interactive elements → critical
+
+### G. Motion & Animation
+
+Visually assess:
+- ✅ Animations are not distracting or excessively rapid
+- ✅ No content flashes more than 3 times per second (seizure risk)
+- ✅ Auto-playing video or carousels can be paused
+- ✅ Carousels/sliders provide sufficient time to read before advancing
+
+Check if `prefers-reduced-motion` is respected:
+
+```javascript
+window.matchMedia('(prefers-reduced-motion: reduce)').matches
+```
+
+If the site has significant animation, note whether this media query is handled.
+
+---
+
+## SECTION 3: Keyboard Navigation Deep Dive
+
+For **2-3 key pages** (homepage required, plus at least one content-heavy page):
+
+### Full Tab Walk-through
+
+1. Click the browser page to give it focus
+2. Press Tab — the first element focused should ideally be a skip navigation link
+3. Continue pressing Tab, noting each focused element and whether focus is visible
+4. Continue until you've reached the footer
+5. Document the total number of focusable elements
+
+**What to record:**
+- Were all interactive elements reachable?
+- Was focus indicator visible throughout?
+- Was tab order logical?
+- Any keyboard traps?
+- Did a skip link appear on first Tab?
+
+### Navigation Menu Testing
+
+If the site has dropdown navigation:
+
+1. Tab to a navigation item that has a dropdown
+2. Press `Enter` or `Space` to open it
+3. Verify dropdown opens and focus moves into it
+4. Tab through the dropdown items
+5. Press `Escape` — verify dropdown closes and focus returns to trigger
+6. Note if arrow key navigation is implemented (good practice but not required at AA)
+
+### Skip Navigation Testing
+
+1. From a fresh page load, press Tab once
+2. A skip link ("Skip to content" or similar) should appear
+3. Press `Enter` — verify focus jumps to the main content area, bypassing navigation
+
+If no skip link exists: flag as high priority.
+
+---
+
+## SECTION 4: Cross-Page Analysis
+
+### 4.1 Consistency Check
+
+After testing all pages, confirm:
+- ✅ Heading hierarchy follows the same patterns across pages
+- ✅ Focus indicators are visible on all pages (a CSS issue will affect all pages globally)
+- ✅ Alt text is consistently present across all pages
+- ✅ Keyboard navigation works on all pages, not just homepage
+- ✅ Footer links are keyboard accessible on all pages
+
+### 4.2 Issue Patterns
+
+- Are missing alt text issues site-wide or on specific pages? (site-wide = theme-level issue)
+- Are heading hierarchy issues consistent or page-specific?
+- Are contrast issues confined to specific components (hero section, footer)?
+- Are keyboard/focus issues global (CSS file) or page-specific?
+
+---
+
+## MANDATORY TESTING CHECKLIST
+
+### Pages Tested
+- [ ] Homepage: `_____________________`
+- [ ] Page 2: `_____________________`
+- [ ] Page 3: `_____________________`
+- [ ] Page 4: `_____________________`
+- [ ] Page 5 (optional): `_____________________`
+- [ ] Page 6 (optional): `_____________________`
+
+**Minimum pages: 4. You have tested _____ pages.**
+
+### Tests Completed Per Page
+- [ ] `browser_snapshot` taken on all pages
+- [ ] Heading hierarchy extracted on all pages
+- [ ] Images checked for alt text on all pages
+- [ ] Forms checked for labels on all pages with forms
+- [ ] Color contrast assessed visually on all pages
+- [ ] Landmark regions checked on all pages
+
+### Keyboard Navigation
+- [ ] Full Tab walk-through completed on at least 2 pages
+- [ ] Focus indicators confirmed visible
+- [ ] No keyboard traps encountered
+- [ ] Skip navigation link tested (or absence documented)
+- [ ] Navigation menu keyboard behavior tested
+
+### Ready for JSON Report
+- [ ] All pages listed in `visitedPages` array
+- [ ] All issues categorised with type, severity, and affected element
+- [ ] WCAG criterion referenced on each issue where applicable
+
+**If any item is unchecked, do NOT generate the JSON report. Return to Section 2 and complete the missing tests.**
+
+---
+
+## SECTION 5: Data Collection
+
+Populate `reports/data/qa-report-accessibility.json`:
+
+```json
+{
+  "url": "https://example.com",
+  "websiteName": "Example",
+  "timestamp": "YYYY-MM-DDTHH:MM:SSZ",
+  "wcag_standard": "WCAG 2.2 Level AA",
+  "visitedPages": [
+    "https://example.com/",
+    "https://example.com/about/",
+    "https://example.com/services/",
+    "https://example.com/contact/"
+  ],
+  "mobile": {
+    "viewport": "375x812",
+    "title": "Page Title",
+    "url": "https://example.com",
+    "a11y": [
+      {"type": "missing-alt", "element": "Hero banner image (hero.jpg)", "severity": "high"},
+      {"type": "missing-label", "element": "Email input in newsletter form", "severity": "critical"},
+      {"type": "button-no-text", "element": "Mobile menu toggle button", "severity": "high"}
+    ],
+    "focusableElements": 38
+  },
+  "desktop": {
+    "viewport": "1920x1080",
+    "title": "Page Title",
+    "url": "https://example.com",
+    "a11y": [
+      {"type": "missing-alt", "element": "Hero banner image (hero.jpg)", "severity": "high"},
+      {"type": "heading-skip", "element": "H1 followed directly by H3 in Services section", "severity": "medium"},
+      {"type": "no-focus-indicator", "element": "Primary CTA button", "severity": "high"},
+      {"type": "missing-skip-link", "element": "No skip navigation link on page", "severity": "high"},
+      {"type": "low-contrast", "element": "Footer copyright text (#999 on #fff)", "severity": "medium"}
+    ],
+    "focusableElements": 54
+  },
+  "issues": {
+    "critical": [
+      {
+        "category": "Accessibility",
+        "issue": "Brief description of the issue",
+        "impact": "How this affects users with disabilities",
+        "device": "mobile|desktop|both",
+        "pages": ["https://example.com/contact/"],
+        "wcag_criterion": "1.3.1 Info and Relationships"
+      }
+    ],
+    "high": [],
+    "medium": [],
+    "low": []
+  }
+}
+```
+
+### A11y Issue Types
+
+Use these standardised type values in the `a11y` array:
+
+| Type | Description |
+|------|-------------|
+| `missing-alt` | Image missing alt attribute, or non-empty alt when image is decorative |
+| `missing-label` | Form input has no associated label |
+| `button-no-text` | Button has no accessible name (no text, aria-label, or aria-labelledby) |
+| `heading-skip` | Heading levels are skipped (e.g. H1 → H3) |
+| `missing-h1` | Page has no H1 tag |
+| `multiple-h1` | Page has more than one H1 tag |
+| `low-contrast` | Text/background contrast ratio below WCAG AA threshold |
+| `no-focus-indicator` | Interactive element has no visible focus indicator |
+| `keyboard-trap` | Keyboard focus cannot escape an area |
+| `missing-skip-link` | Page has no skip navigation link |
+| `missing-landmark` | Page missing expected landmark region (main, nav, etc.) |
+| `aria-hidden-interactive` | `aria-hidden` applied to a focusable element |
+| `placeholder-only-label` | Form input relies solely on placeholder for identification |
+
+### Issue Priority Guide
+
+- **Critical** — completely blocks a screen reader or keyboard user (missing form labels, keyboard traps, `aria-hidden` on interactive elements)
+- **High** — significantly impacts the experience (missing alt on informational images, missing skip link, no focus indicator, buttons without text)
+- **Medium** — reduces quality but workarounds exist (low contrast, skipped heading levels, generic link text)
+- **Low** — best practice violations with minor impact (decorative images missing empty alt, minor ARIA improvements)
+
+### WCAG 2.2 Criteria Reference
+
+| Issue Type | WCAG Criterion |
+|------------|----------------|
+| Missing alt text | 1.1.1 Non-text Content |
+| Missing form labels | 1.3.1 Info and Relationships |
+| Color contrast | 1.4.3 Contrast (Minimum) |
+| Keyboard accessible | 2.1.1 Keyboard |
+| Keyboard trap | 2.1.2 No Keyboard Trap |
+| Focus visible | 2.4.7 Focus Visible |
+| Skip navigation | 2.4.1 Bypass Blocks |
+| Heading structure | 1.3.1 Info and Relationships |
+| Button accessible name | 4.1.2 Name, Role, Value |
+| Form labels | 3.3.2 Labels or Instructions |
+
+---
+
+## SECTION 6: Report Generation
+
+Once `reports/data/qa-report-accessibility.json` is populated:
+
+```bash
+scripts/run-qa-report.sh reports/data/qa-report-accessibility.json
+```
+
+To merge with functional and performance reports:
+
+```bash
+scripts/merge-qa-reports.sh reports/data/qa-report-functional.json reports/data/qa-report-performance.json reports/data/qa-report-accessibility.json
+```
+
+---
+
+## Accessibility Testing Notes
+
+### Using browser_snapshot Effectively
+
+The accessibility tree snapshot is your most powerful tool. Run it on every page before anything else. It reveals at a glance:
+- Which images lack alt text (they appear without an accessible name)
+- Which buttons have no label
+- Whether form inputs are associated with labels
+- The semantic role of every element
+
+If the snapshot output is very long, focus first on: images, buttons, inputs, and headings.
+
+### Color Contrast Limitations
+
+Playwright cannot automatically calculate all contrast ratios. Focus your manual contrast assessment on:
+1. Body/paragraph text (most common, most impactful)
+2. Navigation links (especially if not underlined)
+3. Button text on button backgrounds
+4. Footer text (very frequently failing)
+5. Text on hero images or coloured backgrounds
+
+### WordPress-Specific Patterns
+
+- **Contact Form 7 / WPForms / Gravity Forms** — generally output correct label markup, but custom CSS themes can hide focus indicators; always test these forms by keyboard
+- **Navigation menus** — WordPress themes vary widely in keyboard support; always test dropdowns by keyboard, not just visually
+- **Gutenberg blocks** — core blocks generally have good semantics; custom third-party blocks may not
+- **Sliders and carousels** — common source of auto-play issues, keyboard traps, and missing pause controls
+- **Cookie consent banners** — must be keyboard dismissible; if they trap focus, that is a critical issue
+- **Lightboxes and modals** — frequently implemented without proper focus management; always test by keyboard
+
+### What Passes vs. Fails Keyboard Testing
+
+**Passes:** Every interactive element is reachable by Tab, focus is always visible, Escape closes modals, focus returns to trigger after modal closes.
+
+**Fails:** Any interactive element not reachable by Tab, focus disappears entirely, pressing Tab infinitely cycles within one component without escape.

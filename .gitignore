@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Test output — reports and raw data are client-specific, not committed
+reports/data/
+reports/*.md
+screenshots/
+
+# Local Claude settings
+.claude/settings.local.json
+
+# OS
+.DS_Store

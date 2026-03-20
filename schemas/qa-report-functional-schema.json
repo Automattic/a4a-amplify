@@ -1,0 +1,67 @@
+{
+  "url": "https://example.com",
+  "websiteName": "Example",
+  "timestamp": "YYYY-MM-DDTHH:MM:SSZ",
+  "mobile": {
+    "viewport": "375x812",
+    "title": "Page Title",
+    "url": "https://example.com",
+    "loadTime": 1800,
+    "links": [
+      {"text": "Link text", "href": "https://example.com/page"}
+    ],
+    "images": [
+      {"src": "https://example.com/image.jpg", "alt": "Image description"}
+    ],
+    "headings": [
+      {"tag": "h1", "text": "Heading text"},
+      {"tag": "h2", "text": "Heading text"}
+    ],
+    "focusableElements": 42
+  },
+  "desktop": {
+    "viewport": "1920x1080",
+    "title": "Page Title",
+    "url": "https://example.com",
+    "loadTime": 1800,
+    "links": [
+      {"text": "Link text", "href": "https://example.com/page"}
+    ],
+    "images": [
+      {"src": "https://example.com/image.jpg", "alt": "Image description"}
+    ],
+    "headings": [
+      {"tag": "h1", "text": "Heading text"},
+      {"tag": "h2", "text": "Heading text"}
+    ],
+    "focusableElements": 58
+  },
+  "metadata": {
+    "ogTitle": "Page Title",
+    "ogDescription": "Page description",
+    "ogImage": "https://example.com/og-image.jpg",
+    "ogUrl": "https://example.com",
+    "ogType": "website",
+    "twitterCard": null,
+    "twitterTitle": null,
+    "twitterDescription": null,
+    "twitterImage": null
+  },
+  "links": [
+    {"text": "Link text", "href": "https://example.com/page", "ok": true, "status": 200}
+  ],
+  "issues": {
+    "critical": [
+      {
+        "category": "Design",
+        "issue": "Brief issue description",
+        "impact": "How this affects users",
+        "device": "mobile|desktop|both",
+        "pages": ["https://example.com/page1"]
+      }
+    ],
+    "high": [],
+    "medium": [],
+    "low": []
+  }
+}

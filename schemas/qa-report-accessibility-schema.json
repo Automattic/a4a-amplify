@@ -1,0 +1,41 @@
+{
+  "url": "https://example.com",
+  "websiteName": "Example",
+  "timestamp": "YYYY-MM-DDTHH:MM:SSZ",
+  "mobile": {
+    "viewport": "375x812",
+    "title": "Page Title",
+    "url": "https://example.com",
+    "a11y": [
+      {"type": "missing_alt_text", "element": "Image description", "severity": "medium"},
+      {"type": "missing_label", "element": "Form field description", "severity": "high"},
+      {"type": "color_contrast", "element": "Element description", "severity": "medium"},
+      {"type": "keyboard_nav", "element": "Element description", "severity": "high"},
+      {"type": "heading_hierarchy", "element": "Element description", "severity": "low"}
+    ]
+  },
+  "desktop": {
+    "viewport": "1920x1080",
+    "title": "Page Title",
+    "url": "https://example.com",
+    "a11y": [
+      {"type": "missing_alt_text", "element": "Image description", "severity": "medium"}
+    ]
+  },
+  "wcag_standard": "WCAG 2.2 Level AA",
+  "issues": {
+    "critical": [
+      {
+        "category": "Accessibility",
+        "issue": "Brief issue description",
+        "impact": "How this affects users with disabilities",
+        "device": "mobile|desktop|both",
+        "pages": ["https://example.com/page1"],
+        "wcag_criterion": "1.1.1 Non-text Content"
+      }
+    ],
+    "high": [],
+    "medium": [],
+    "low": []
+  }
+}
