@@ -23,7 +23,7 @@ Each test visits 4–6+ pages, simulates real user behavior, and outputs a struc
 Clone the repo:
 
 ```bash
-git clone https://github.com/katodea/kosh.git
+git clone https://github.com/a8cteam51/kosh.git
 cd kosh
 ```
 
