@@ -1,4 +1,6 @@
-# kosh
+# <img width="30" alt="kosh" src="https://github.com/user-attachments/assets/04072d21-359e-4b50-ad08-fe4056e1a077" /> kosh 
+
+<img alt="kosh; text reads one moment of perfect beauty" width="300" src="https://github.com/user-attachments/assets/db9737bb-7ea8-4dbf-b539-e503c29bb9a5">
 
 A Claude Code plugin for testing WordPress sites. Run automated functional, performance, and accessibility audits against any live URL using real browser automation via Playwright MCP.
 
