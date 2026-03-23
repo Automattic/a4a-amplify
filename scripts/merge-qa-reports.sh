@@ -47,17 +47,17 @@ echo -e "${GREEN}✓ All input files found${NC}"
 # Validate JSON syntax
 echo -e "${BLUE}Step 2: Validating JSON syntax...${NC}"
 
-if ! node -e "JSON.parse(require('fs').readFileSync('$FUNCTIONAL_JSON', 'utf8'); console.log('✓ Functional JSON is valid')" 2>/dev/null; then
+if ! node -e "JSON.parse(require('fs').readFileSync('$FUNCTIONAL_JSON', 'utf8')); console.log('✓ Functional JSON is valid')" 2>/dev/null; then
   echo -e "${RED}Error: Invalid JSON in $FUNCTIONAL_JSON${NC}"
   exit 1
 fi
 
-if ! node -e "JSON.parse(require('fs').readFileSync('$PERFORMANCE_JSON', 'utf8'); console.log('✓ Performance JSON is valid')" 2>/dev/null; then
+if ! node -e "JSON.parse(require('fs').readFileSync('$PERFORMANCE_JSON', 'utf8')); console.log('✓ Performance JSON is valid')" 2>/dev/null; then
   echo -e "${RED}Error: Invalid JSON in $PERFORMANCE_JSON${NC}"
   exit 1
 fi
 
-if ! node -e "JSON.parse(require('fs').readFileSync('$ACCESSIBILITY_JSON', 'utf8'); console.log('✓ Accessibility JSON is valid')" 2>/dev/null; then
+if ! node -e "JSON.parse(require('fs').readFileSync('$ACCESSIBILITY_JSON', 'utf8')); console.log('✓ Accessibility JSON is valid')" 2>/dev/null; then
   echo -e "${RED}Error: Invalid JSON in $ACCESSIBILITY_JSON${NC}"
   exit 1
 fi
