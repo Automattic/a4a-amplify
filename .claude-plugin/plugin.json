@@ -5,5 +5,8 @@
   "author": {
     "name": "katodea"
   },
-  "repository": "https://github.com/a8cteam51/kosh"
+  "repository": "https://github.com/a8cteam51/kosh",
+  "commands": ["./commands/"],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json"
 }
