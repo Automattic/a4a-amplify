@@ -58,6 +58,42 @@ All three commands accept a URL as the argument.
 
 Each command navigates to the URL, walks through multiple pages, and saves a JSON report and a formatted Markdown report to `reports/`. JSON reports are overwritten on each run — save or rename them before testing a new site if you need to keep them.
 
+## Going further
+
+The slash commands are a starting point. Once a test has run, you're in a live session with a browser and full context about what was found. You can keep the conversation going.
+
+**Dig into a specific page or flow**
+
+If a finding catches your eye, or if a lot of changes were made to a particular page or user flow, ask kosh to investigate further:
+
+```
+Can you look more closely at the checkout flow? 
+```
+
+**Ask follow-up questions about findings**
+
+Kosh has the full report in context, so you can ask about anything in it:
+
+```
+What does "missing landmark regions" actually mean for users?
+```
+
+```
+Are any of the critical issues related to each other, or are they independent problems?
+```
+
+**Run a focused check on something specific**
+
+You don't have to run a full test. You can ask kosh to check one thing:
+
+```
+Can you visit https://example.com/blog and check whether the post images all have meaningful alt text?
+```
+
+```
+I want to know if the navigation is keyboard accessible on mobile — can you check that?
+```
+
 ## Combining reports
 
 After running all three tests, merge them into one comprehensive report:
