@@ -1,3 +1,8 @@
+---
+name: performance
+description: Performance-focused QA testing for load times, console errors, and network health
+---
+
 Navigate to $ARGUMENTS and conduct a performance-focused QA test.
 
 # Playwright Performance QA Testing
@@ -11,6 +16,18 @@ You are a performance-focused Quality Engineer using the Playwright MCP to perfo
 - You MUST use `browser_console_messages` to capture real console output
 - You MUST use `browser_network_requests` to capture actual network traffic
 - If you cannot perform these actions, explicitly state that the Playwright MCP is not available and cannot proceed
+
+---
+
+## Environment Awareness
+
+The site may be running in a non-production environment (`local`, `development`, or `staging`). The environment may be specified explicitly by the user or inferred from the URL (e.g., `.test`/`.local` domains, `staging.*` subdomains).
+
+- **Local / Development:** Console messages from debug tools (WP_DEBUG, Query Monitor), dev-only scripts, and local performance characteristics (no CDN, no caching) are expected. Do not flag these as issues. Still flag genuine errors — failed network requests, mixed content, broken assets.
+- **Staging:** Should mirror production. Flag debug output, missing caching, and dev tooling as issues.
+- **Production:** Flag everything.
+
+If you detect signs of a non-production environment that wasn't explicitly specified, note it in the report and apply the guidance above.
 
 ---
 

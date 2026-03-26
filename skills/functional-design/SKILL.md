@@ -1,3 +1,8 @@
+---
+name: functional-design
+description: Functional and design-focused QA testing across multiple pages and viewports
+---
+
 Navigate to $ARGUMENTS and conduct a functional and design-focused QA test.
 
 # Playwright Comprehensive QA Testing: Multi-Page User Journeys with Functional QA
@@ -15,8 +20,17 @@ You are a design-focused Quality Engineer using the Playwright MCP to perform **
 
 ---
 
-**REMEMBER:**
-- Lazy-loading is in use throughout websites we are testing. Make sure the image is in the viewport before documenting it as broken.
+## Environment Awareness
+
+The site may be running in a non-production environment (`local`, `development`, or `staging`). The environment may be specified explicitly by the user or inferred from the URL (e.g., `.test`/`.local` domains, `staging.*` subdomains).
+
+How you report findings depends on the environment:
+
+- **Local / Development:** Test data, sandbox payment gateways (Stripe test mode, PayPal sandbox), placeholder content, debug output (WP_DEBUG, Query Monitor, admin bars), and dev toolbars are all expected. Do not flag these as issues. Still flag genuine functional problems — broken layouts, JS errors, missing assets, broken links.
+- **Staging:** This environment should mirror production. Flag sandbox payment gateways, test/placeholder content, and debug output as issues — their presence on staging means they could ship to production.
+- **Production:** Flag everything.
+
+If you detect signs of a non-production environment that wasn't explicitly specified (e.g., Stripe test keys, a visible WP_DEBUG bar, `.test` domain), note the detected environment in the report and apply the guidance above.
 
 ---
 
@@ -162,11 +176,9 @@ On **desktop (1920px) viewport**:
 - ✅ No visual glitches or rendering issues
 - ✅ Proper contrast and visual hierarchy maintained
 
-#### B. Scrolling & Lazy Loading Images
+#### B. Scrolling & Images
 On **desktop (1920px) viewport**:
 - ✅ Scroll through entire page from top to bottom
-- ✅ Wait 1-2 seconds between scroll sections for lazy-loaded images
-- ✅ Identify images with `loading="lazy"` attribute (intentional, not broken)
 - ✅ After scrolling to each section, verify images load successfully
 - ✅ Scroll back to top and verify scroll position works
 - ✅ Note any layout shifts when images load
@@ -310,7 +322,7 @@ On **this page** (check footer on at least homepage and one other page):
 ### Journeys Completed
 - [ ] Journey #1 (Main Navigation Flow) completed on: `_____________________`
   - Design & Visual Testing (Section 2, Part A): ✅ Completed
-  - Scrolling & Lazy Loading (Section 2, Part B): ✅ Completed
+  - Scrolling & Images (Section 2, Part B): ✅ Completed
   - Link Validation (Section 2, Part C): ✅ Completed
   - Content Quality (Section 2, Part E): ✅ Completed
 

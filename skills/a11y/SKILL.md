@@ -1,3 +1,8 @@
+---
+name: a11y
+description: Accessibility-focused QA testing against WCAG 2.2 Level AA standards
+---
+
 Navigate to $ARGUMENTS and conduct an accessibility-focused QA test.
 
 # Playwright Accessibility QA Testing (WCAG 2.2 Level AA)
@@ -22,6 +27,18 @@ Key principles (POUR):
 - **Operable** — all functionality must be keyboard accessible (navigation, forms, modals)
 - **Understandable** — content must be readable and predictable
 - **Robust** — content must work with assistive technologies (correct ARIA, semantic HTML)
+
+---
+
+## Environment Awareness
+
+The site may be running in a non-production environment (`local`, `development`, or `staging`). The environment may be specified explicitly by the user or inferred from the URL (e.g., `.test`/`.local` domains, `staging.*` subdomains).
+
+- **Local / Development:** Accessibility issues injected by dev tooling (admin bars, debug bars, Query Monitor panels) are expected and should not be flagged. Still flag all genuine accessibility issues — heading hierarchy, missing alt text, contrast, keyboard navigation, and ARIA problems exist regardless of environment.
+- **Staging:** Should mirror production. Flag everything, including issues from debug tools that shouldn't be present.
+- **Production:** Flag everything.
+
+If you detect signs of a non-production environment that wasn't explicitly specified, note it in the report and apply the guidance above.
 
 ---
 

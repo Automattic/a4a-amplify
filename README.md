@@ -14,93 +14,25 @@ Kosh tests a site across three dimensions:
 
 Each test visits 4–6+ pages, simulates real user behavior, and outputs a structured JSON report. An optional script converts any report to a formatted Markdown document, and a merge script combines all three into one comprehensive report.
 
-## Prerequisites
-
-- [Claude Code](https://claude.ai/code) 1.0.33 or later
-- Node.js (for report generation scripts)
-- Playwright MCP — installed automatically on first run via `npx @playwright/mcp@latest`
-
-## Setup
-
-Clone the repo:
+## Quick start
 
 ```bash
 git clone https://github.com/a8cteam51/kosh.git
 cd kosh
-```
-
-Load the plugin when starting Claude Code:
-
-```bash
 claude --plugin-dir .
 ```
 
-The `reports/data/` directory is created automatically when a session starts.
+On first run, Claude Code will ask you to trust this project's settings — **accept the prompt**. This pre-approves the Playwright browser tools so you don't get prompted for each one during a test.
 
-## Usage
+Then run a test:
 
-All three commands accept a URL as the argument.
-
-**Functional & design test**
 ```
 /kosh:functional-design https://example.com
-```
-
-**Performance test**
-```
 /kosh:performance https://example.com
-```
-
-**Accessibility test**
-```
 /kosh:a11y https://example.com
 ```
 
-Each command navigates to the URL, walks through multiple pages, and saves a JSON report and a formatted Markdown report to `reports/`. JSON reports are overwritten on each run — save or rename them before testing a new site if you need to keep them.
-
-## Going further
-
-The slash commands are a starting point. Once a test has run, you're in a live session with a browser and full context about what was found. You can keep the conversation going.
-
-**Dig into a specific page or flow**
-
-If a finding catches your eye, or if a lot of changes were made to a particular page or user flow, ask kosh to investigate further:
-
-```
-Can you look more closely at the checkout flow? 
-```
-
-**Ask follow-up questions about findings**
-
-Kosh has the full report in context, so you can ask about anything in it:
-
-```
-What does "missing landmark regions" actually mean for users?
-```
-
-```
-Are any of the critical issues related to each other, or are they independent problems?
-```
-
-**Run a focused check on something specific**
-
-You don't have to run a full test. You can ask kosh to check one thing:
-
-```
-Can you visit https://example.com/blog and check whether the post images all have meaningful alt text?
-```
-
-```
-I want to know if the navigation is keyboard accessible on mobile — can you check that?
-```
-
-## Combining reports
-
-After running all three tests, merge them into one comprehensive report:
-
-```
-/kosh:merge
-```
+For detailed setup instructions (including troubleshooting), see the [Getting Started guide](docs/getting-started.md).
 
 ## Project structure
 
