@@ -51,7 +51,7 @@ If you detect signs of a non-production environment that wasn't explicitly speci
 - ✅ Check **all forms** for label associations on any page with forms
 - ✅ Test **keyboard navigation** (Tab, Enter, Escape) on at least 2-3 pages
 - ✅ Verify **focus indicators** are visible on all tested pages
-- ✅ Assess **color contrast** on primary text, links, and buttons
+- ✅ Run **contrast extraction script** on every visited page and report all failures
 - ✅ Document all visited pages in the JSON `visitedPages` array
 
 **If you skip any of these steps, the test is incomplete and will not be accepted.**
@@ -191,7 +191,7 @@ Array.from(document.querySelectorAll('img')).map(img => ({
 
 ### C. Color Contrast
 
-Visually assess contrast on the following elements. WCAG 2.2 AA thresholds:
+WCAG 2.2 AA contrast thresholds:
 - Normal text (< 18pt regular or < 14pt bold): **4.5:1 minimum**
 - Large text (≥ 18pt regular or ≥ 14pt bold): **3:1 minimum**
 - UI components (buttons, form borders, icons): **3:1 minimum**
@@ -204,22 +204,114 @@ Visually assess contrast on the following elements. WCAG 2.2 AA thresholds:
 - Footer text (frequently too light)
 - Text overlaid on hero images or gradients
 
-To get computed colors for evaluation:
+#### Programmatic contrast extraction
+
+You MUST run the following script on every page to extract computed colors from key UI elements. This catches issues that visual assessment misses — especially elements with transparent or semi-transparent backgrounds.
+
+**Important: resolving transparent backgrounds.** Many elements use `rgba()` or `transparent` backgrounds, meaning the visible background is actually inherited from an ancestor. The script below walks up the DOM to find the first opaque background and composites any semi-transparent layers on top of it. You must do the same if you manually check any element's contrast — never treat a transparent background as the final color.
 
 ```javascript
 (() => {
-  const el = document.querySelector('p') || document.querySelector('article');
-  if (!el) return 'No body text found';
-  const s = window.getComputedStyle(el);
-  return { color: s.color, background: s.backgroundColor };
+  // Parse an rgb/rgba string into {r, g, b, a}
+  function parseColor(str) {
+    const m = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    if (!m) return null;
+    return { r: +m[1], g: +m[2], b: +m[3], a: m[4] !== undefined ? +m[4] : 1 };
+  }
+
+  // Composite a semi-transparent foreground over an opaque background
+  function composite(fg, bg) {
+    return {
+      r: Math.round(fg.r * fg.a + bg.r * (1 - fg.a)),
+      g: Math.round(fg.g * fg.a + bg.g * (1 - fg.a)),
+      b: Math.round(fg.b * fg.a + bg.b * (1 - fg.a)),
+      a: 1
+    };
+  }
+
+  // Walk up the DOM to resolve the effective background color
+  function resolveBackground(el) {
+    let layers = [];
+    let current = el;
+    while (current) {
+      const bg = parseColor(window.getComputedStyle(current).backgroundColor);
+      if (bg) {
+        layers.push(bg);
+        if (bg.a === 1) break; // found an opaque layer, stop
+      }
+      current = current.parentElement;
+    }
+    // If no opaque layer found, assume white
+    let result = { r: 255, g: 255, b: 255, a: 1 };
+    // Composite from bottom (most distant ancestor) to top (element itself)
+    for (let i = layers.length - 1; i >= 0; i--) {
+      result = composite(layers[i], result);
+    }
+    return result;
+  }
+
+  // Relative luminance per WCAG 2.x
+  function luminance(c) {
+    const [rs, gs, bs] = [c.r, c.g, c.b].map(v => {
+      v = v / 255;
+      return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+  }
+
+  // Contrast ratio
+  function contrastRatio(c1, c2) {
+    const l1 = luminance(c1), l2 = luminance(c2);
+    const lighter = Math.max(l1, l2), darker = Math.min(l1, l2);
+    return +((lighter + 0.05) / (darker + 0.05)).toFixed(2);
+  }
+
+  // Collect elements to check
+  const selectors = 'a, button, p, h1, h2, h3, h4, h5, h6, span, li, td, th, label, input, select, textarea';
+  const seen = new Set();
+  const results = [];
+
+  document.querySelectorAll(selectors).forEach(el => {
+    const text = el.textContent?.trim().substring(0, 40);
+    if (!text || seen.has(el)) return;
+    seen.add(el);
+
+    const styles = window.getComputedStyle(el);
+    const textColor = parseColor(styles.color);
+    const effectiveBg = resolveBackground(el);
+    if (!textColor || !effectiveBg) return;
+
+    const ratio = contrastRatio(textColor, effectiveBg);
+    const fontSize = parseFloat(styles.fontSize);
+    const fontWeight = parseInt(styles.fontWeight) || 400;
+    const isLarge = fontSize >= 24 || (fontSize >= 18.66 && fontWeight >= 700);
+    const threshold = isLarge ? 3 : 4.5;
+
+    if (ratio < threshold) {
+      results.push({
+        tag: el.tagName.toLowerCase(),
+        text: text,
+        textColor: `rgb(${textColor.r},${textColor.g},${textColor.b})`,
+        effectiveBg: `rgb(${effectiveBg.r},${effectiveBg.g},${effectiveBg.b})`,
+        ratio: ratio,
+        threshold: threshold,
+        fontSize: fontSize + 'px',
+        fontWeight: fontWeight,
+        isLarge: isLarge
+      });
+    }
+  });
+
+  return results.length ? results : 'All checked elements meet contrast thresholds';
 })()
 ```
 
+Any element returned by this script is a contrast failure — report it. Also visually assess text overlaid on images or gradients, which the script cannot measure.
+
 **Flag if:**
-- Body text appears light grey on white or low-saturation → likely failing contrast
+- Any element returned by the contrast script → report with the actual ratio and threshold
 - Footer text appears muted → common failure point
-- Button text is pale or reversed on a light background
-- Text on images lacks sufficient contrast
+- Text on images lacks sufficient contrast (check visually)
 
 ### D. Keyboard Navigation
 
@@ -407,7 +499,7 @@ After testing all pages, confirm:
 - [ ] Heading hierarchy extracted on all pages
 - [ ] Images checked for alt text on all pages
 - [ ] Forms checked for labels on all pages with forms
-- [ ] Color contrast assessed visually on all pages
+- [ ] Contrast extraction script run on all pages
 - [ ] Landmark regions checked on all pages
 
 ### Keyboard Navigation
@@ -556,14 +648,14 @@ The accessibility tree snapshot is your most powerful tool. Run it on every page
 
 If the snapshot output is very long, focus first on: images, buttons, inputs, and headings.
 
-### Color Contrast Limitations
+### Color Contrast Notes
 
-Playwright cannot automatically calculate all contrast ratios. Focus your manual contrast assessment on:
-1. Body/paragraph text (most common, most impactful)
-2. Navigation links (especially if not underlined)
-3. Button text on button backgrounds
-4. Footer text (very frequently failing)
-5. Text on hero images or coloured backgrounds
+The contrast extraction script in Section 2C catches most text-on-background failures, including elements with transparent or semi-transparent backgrounds. However, it **cannot** measure:
+- Text overlaid on background images or gradients (no single background color to extract)
+- Text rendered inside `<canvas>` or `<svg>` elements
+- Contrast of non-text UI components like icon-only indicators
+
+For these cases, visually assess contrast and flag anything that appears marginal. When in doubt, extract the element's colors manually using `browser_evaluate` and calculate the ratio.
 
 ### WordPress-Specific Patterns
 
