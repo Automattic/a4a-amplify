@@ -35,7 +35,7 @@ If you add a new test type, you need all three: a command, a skill, and a schema
 Skill files are long, detailed prompts — not code. They tell Claude exactly what to test, in what order, and how to report it. When editing a skill:
 
 - Keep instructions explicit and mandatory. Claude follows these literally, so vague language leads to inconsistent results.
-- Use checklists (`- ✅`) for required steps — the skills enforce completion before report generation.
+- Use `- ✅` for mandatory requirement declarations (things Claude must do, stated upfront as rules). Use `- [ ]` for completion tracking checklists (things Claude checks off as it works, used as a gate before report generation). Both patterns appear in skill files and serve different purposes.
 - Maintain the existing phase structure (setup → multi-page testing → analysis → reporting).
 - Test your changes by running the command against a real site and reviewing the report.
 
