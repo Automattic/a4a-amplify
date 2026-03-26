@@ -6,11 +6,11 @@ A step-by-step guide to installing and running your first test with kosh.
 
 Before you start, make sure you have the following installed:
 
-1. **Claude Code** — Anthropic's CLI tool. If you don't have it yet, head to [claude.ai/code](https://claude.ai/code) and follow the install instructions for your platform. You'll need version 1.0.33 or later.
+1. **Claude Code:** Anthropic's CLI tool. If you don't have it yet, head to [claude.ai/code](https://claude.ai/code) and follow the install instructions for your platform. You'll need version 1.0.33 or later.
 
-2. **Node.js** — used for generating reports. Download it from [nodejs.org](https://nodejs.org) if you don't already have it. The LTS version is fine.
+2. **Node.js:** Used for generating reports. Download it from [nodejs.org](https://nodejs.org) if you don't already have it. The LTS version is fine.
 
-3. **Git** — used to download the kosh code. Most Macs have it pre-installed. To check, open Terminal and type `git --version`. If you see a version number, you're good.
+3. **Git:** Used to download the kosh code. Most Macs have it pre-installed. To check, open Terminal and type `git --version`. If you see a version number, you're good.
 
 ## Step 1: Clone the repository
 
@@ -54,17 +54,17 @@ If you accidentally skip this step, you'll get a permission prompt for every bro
 
 kosh has three test commands. Each one takes a URL — the site you want to test.
 
-**Functional & design test** — checks user journeys, layout, links, metadata, and content:
+**Functional & design test:** Checks user journeys, layout, links, metadata, and content:
 ```
 /kosh:functional-design https://example.com
 ```
 
-**Performance test** — checks load times, console errors, and network health:
+**Performance test:** Checks load times, console errors, and network health:
 ```
 /kosh:performance https://example.com
 ```
 
-**Accessibility test** — checks WCAG 2.2 Level AA compliance (headings, alt text, contrast, keyboard navigation):
+**Accessibility test:** Checks WCAG 2.2 Level AA compliance (headings, alt text, contrast, keyboard navigation):
 ```
 /kosh:a11y https://example.com
 ```
@@ -77,10 +77,10 @@ When it's done, you'll find the results in the `reports/` folder as both a JSON 
 
 The Markdown report is the easiest way to review findings. It groups issues by severity:
 
-- **Critical** — major problems that need immediate attention
-- **High** — significant issues that should be fixed soon
-- **Medium** — things worth addressing but not urgent
-- **Low** — minor improvements or suggestions
+- **Critical:** Major problems that need immediate attention
+- **High:** Significant issues that should be fixed soon
+- **Medium:** Things worth addressing but not urgent
+- **Low:** Minor improvements or suggestions
 
 You can open the Markdown file in any text editor, or preview it on GitHub if you push it to a branch.
 

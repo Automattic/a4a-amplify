@@ -1,7 +1,8 @@
-If $ARGUMENTS is empty or does not contain a URL, ask the user to provide one before proceeding. Do not begin testing without a valid URL.
+Parse $ARGUMENTS into a URL and an optional environment type before doing anything else:
 
-$ARGUMENTS may also include an environment type: `local`, `development`, `staging`, or `production`. If provided, pass this context to the skill so findings can be evaluated appropriately. If not provided, infer the environment from the URL when possible (e.g., `.test`/`.local` domains suggest local, `staging.*` subdomains suggest staging). Default to `production` if unclear.
+1. Extract the URL from $ARGUMENTS (the token that starts with `http://` or `https://`). If no URL is found, ask the user to provide one before proceeding. Do not begin testing without a valid URL.
+2. Extract the environment type if present — one of `local`, `development`, `staging`, or `production`. If not provided, infer it from the URL when possible (e.g., `.test`/`.local` domains suggest local, `staging.*` subdomains suggest staging). Default to `production` if unclear.
 
-Navigate to $ARGUMENTS and conduct a functional and design-focused QA test.
+Navigate to the extracted URL and conduct a functional and design-focused QA test, using the determined environment type to guide how findings are reported.
 
 Follow the testing instructions in skills/functional-design/SKILL.md.

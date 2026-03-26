@@ -22,6 +22,8 @@ cd kosh
 claude --plugin-dir .
 ```
 
+On first run, Claude Code will ask you to trust this project's settings — **accept the prompt**. This pre-approves the Playwright browser tools so you don't get prompted for each one during a test.
+
 Then run a test:
 
 ```
