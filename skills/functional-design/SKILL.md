@@ -134,13 +134,14 @@ Run this script on every page to programmatically flag images rendered larger th
     // Ratio of available pixels to needed pixels (< 1 means upscaled / low-res)
     const ratio = Math.min(img.naturalWidth / neededWidth, img.naturalHeight / neededHeight);
 
-    if (ratio < 0.75) {
+    if (ratio < 1.0) {
       results.push({
         src: (img.currentSrc || img.src).split('/').pop().substring(0, 60),
         naturalSize: `${img.naturalWidth}x${img.naturalHeight}px`,
         renderedCSS: `${Math.round(rect.width)}x${Math.round(rect.height)}px`,
         neededForCrisp: `${Math.round(neededWidth)}x${Math.round(neededHeight)}px (${dpr}x DPR)`,
         resolutionRatio: +ratio.toFixed(2),
+        status: ratio < 0.75 ? 'flag' : 'needs visual review',
         alt: (img.alt || '(no alt)').substring(0, 40)
       });
     }
