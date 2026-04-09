@@ -123,7 +123,7 @@ Run this script on every page to programmatically flag images rendered larger th
   document.querySelectorAll('img').forEach(img => {
     // Skip unloaded images, SVGs (naturalWidth is unreliable), and hidden images
     if (!img.complete || img.naturalWidth === 0) return;
-    if ((img.src || img.currentSrc || '').includes('.svg')) return;
+    if ((img.currentSrc || img.src || '').includes('.svg')) return;
     const rect = img.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
 
@@ -136,7 +136,7 @@ Run this script on every page to programmatically flag images rendered larger th
 
     if (ratio < 0.75) {
       results.push({
-        src: img.currentSrc?.split('/').pop().substring(0, 60) || img.src.split('/').pop().substring(0, 60),
+        src: (img.currentSrc || img.src).split('/').pop().substring(0, 60),
         naturalSize: `${img.naturalWidth}x${img.naturalHeight}px`,
         renderedCSS: `${Math.round(rect.width)}x${Math.round(rect.height)}px`,
         neededForCrisp: `${Math.round(neededWidth)}x${Math.round(neededHeight)}px (${dpr}x DPR)`,
@@ -152,7 +152,7 @@ Run this script on every page to programmatically flag images rendered larger th
 })()
 ```
 
-A `resolutionRatio` below 0.75 means the image is being rendered at more than 133% of its natural size — flag it. Between 0.75 and 1.0 is marginal; use visual inspection to decide.
+A `resolutionRatio` below 0.75 means the image is being rendered at more than 133% of its natural size — flag it as an issue in the report. Between 0.75 and 1.0 is marginal — note it in the report as "needs visual review" and do not make a pass/fail call yourself.
 
 ### 1.5 Design Baseline (Desktop 1920px)
 **Initial Page Load & Above-the-Fold:**
@@ -227,7 +227,7 @@ On **desktop (1920px) viewport**:
 
 **Images & Media:**
 - ✅ All images load successfully at good quality
-- ✅ Run the image resolution script from Section 1.4 and flag any returned results
+- ✅ Run the image resolution script from Section 1.4 — flag results with `resolutionRatio` below 0.75 as issues; note anything between 0.75 and 1.0 as "needs visual review" without making a pass/fail call
 - ✅ Image aspect ratios are maintained correctly
 - ✅ Lazy-loaded images: Account for these (scroll the page to trigger loading, then re-run the resolution script)
 - ✅ No broken image placeholders (404 errors)
