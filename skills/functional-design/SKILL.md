@@ -113,6 +113,47 @@ If you detect signs of a non-production environment that wasn't explicitly speci
 - ✅ Images scale appropriately without pixelation
 - Document: Any images that appear low-res or need replacement
 
+Run this script on every page to programmatically flag images rendered larger than their natural dimensions. It accounts for device pixel ratio, so results are accurate on both standard and HiDPI displays. Any image returned is being upscaled and may appear pixelated.
+
+```javascript
+(() => {
+  const dpr = window.devicePixelRatio || 1;
+  const results = [];
+
+  document.querySelectorAll('img').forEach(img => {
+    // Skip unloaded images, SVGs (naturalWidth is unreliable), and hidden images
+    if (!img.complete || img.naturalWidth === 0) return;
+    if ((img.src || img.currentSrc || '').includes('.svg')) return;
+    const rect = img.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    // Physical pixels needed for a crisp render at the current DPR
+    const neededWidth = rect.width * dpr;
+    const neededHeight = rect.height * dpr;
+
+    // Ratio of available pixels to needed pixels (< 1 means upscaled / low-res)
+    const ratio = Math.min(img.naturalWidth / neededWidth, img.naturalHeight / neededHeight);
+
+    if (ratio < 0.75) {
+      results.push({
+        src: img.currentSrc?.split('/').pop().substring(0, 60) || img.src.split('/').pop().substring(0, 60),
+        naturalSize: `${img.naturalWidth}x${img.naturalHeight}px`,
+        renderedCSS: `${Math.round(rect.width)}x${Math.round(rect.height)}px`,
+        neededForCrisp: `${Math.round(neededWidth)}x${Math.round(neededHeight)}px (${dpr}x DPR)`,
+        resolutionRatio: +ratio.toFixed(2),
+        alt: (img.alt || '(no alt)').substring(0, 40)
+      });
+    }
+  });
+
+  return results.length
+    ? results
+    : 'All images are sufficiently sized for their rendered dimensions';
+})()
+```
+
+A `resolutionRatio` below 0.75 means the image is being rendered at more than 133% of its natural size — flag it. Between 0.75 and 1.0 is marginal; use visual inspection to decide.
+
 ### 1.5 Design Baseline (Desktop 1920px)
 **Initial Page Load & Above-the-Fold:**
 - ✅ Page loads successfully on desktop
@@ -186,9 +227,9 @@ On **desktop (1920px) viewport**:
 
 **Images & Media:**
 - ✅ All images load successfully at good quality
-- ✅ No pixelation, blurriness, or low-resolution images
+- ✅ Run the image resolution script from Section 1.4 and flag any returned results
 - ✅ Image aspect ratios are maintained correctly
-- ✅ Lazy-loaded images: Account for these (wait 1-2 seconds before concluding broken)
+- ✅ Lazy-loaded images: Account for these (scroll the page to trigger loading, then re-run the resolution script)
 - ✅ No broken image placeholders (404 errors)
 
 #### C. Link Validation
