@@ -20,6 +20,8 @@ if (!fs.existsSync(inputFile)) {
 
 const report = JSON.parse(fs.readFileSync(inputFile, 'utf8'));
 
+const esc = (val) => String(val ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
 // Determine test type based on what data is available
 const hasPerformanceData = report.mobile?.console || report.desktop?.console || report.mobile?.network || report.desktop?.network;
 const hasAccessibilityData = report.mobile?.a11y || report.desktop?.a11y;
@@ -42,14 +44,14 @@ let issuesSummary = '';
 
 if (report.issues.critical.length > 0) {
   issuesSummary += `**Critical Issues (${report.issues.critical.length}):**\n`;
-  issuesSummary += report.issues.critical.map(issue => `- ${issue.category}: ${issue.issue}`).join('\n');
+  issuesSummary += report.issues.critical.map(issue => `- ${esc(issue.category)}: ${esc(issue.issue)}`).join('\n');
   issuesSummary += '\n\n';
 }
 
 if (report.issues.high.length > 0) {
   issuesSummary += `**High Priority Issues (${report.issues.high.length}):**\n`;
   const displayedHigh = report.issues.high.slice(0, 10);
-  issuesSummary += displayedHigh.map(issue => `- ${issue.category}: ${issue.issue}`).join('\n');
+  issuesSummary += displayedHigh.map(issue => `- ${esc(issue.category)}: ${esc(issue.issue)}`).join('\n');
   if (report.issues.high.length > 10) {
     issuesSummary += `\n- ... and ${report.issues.high.length - 10} more`;
   }
@@ -59,7 +61,7 @@ if (report.issues.high.length > 0) {
 if (report.issues.medium.length > 0) {
   issuesSummary += `**Medium Priority Issues (${report.issues.medium.length}):**\n`;
   const displayedMedium = report.issues.medium.slice(0, 10);
-  issuesSummary += displayedMedium.map(issue => `- ${issue.category}: ${issue.issue}`).join('\n');
+  issuesSummary += displayedMedium.map(issue => `- ${esc(issue.category)}: ${esc(issue.issue)}`).join('\n');
   if (report.issues.medium.length > 10) {
     issuesSummary += `\n- ... and ${report.issues.medium.length - 10} more`;
   }
@@ -69,7 +71,7 @@ if (report.issues.medium.length > 0) {
 if (report.issues.low.length > 0) {
   issuesSummary += `**Low Priority Issues (${report.issues.low.length}):**\n`;
   const displayedLow = report.issues.low.slice(0, 10);
-  issuesSummary += displayedLow.map(issue => `- ${issue.category}: ${issue.issue}`).join('\n');
+  issuesSummary += displayedLow.map(issue => `- ${esc(issue.category)}: ${esc(issue.issue)}`).join('\n');
   if (report.issues.low.length > 10) {
     issuesSummary += `\n- ... and ${report.issues.low.length - 10} more`;
   }
@@ -77,7 +79,7 @@ if (report.issues.low.length > 0) {
 
 let markdown = `# Kosh Report - ${websiteName}
 
-**URL:** ${report.url}
+**URL:** ${esc(report.url)}
 **Test Date:** ${new Date(report.timestamp).toLocaleString()}
 **Tester:** Kosh
 **Test Type:** ${includeFunctional ? 'Functional & Design' : ''}${includePerformance ? (includeFunctional ? ', Performance' : 'Performance') : ''}${includeAccessibility ? (includeFunctional || includePerformance ? ', Accessibility' : 'Accessibility') : ''}
@@ -90,7 +92,7 @@ This report covers ${includeFunctional ? 'functional and design ' : ''}${include
 
 ### Key Findings
 
-- **Page Title:** ${report.desktop.title || 'N/A'}
+- **Page Title:** ${esc(report.desktop.title) || 'N/A'}
 ${includeFunctional ? `- **Total Links Found:** ${report.desktop.links?.length || 0}
 - **Total Images Found:** ${report.desktop.images?.length || 0}` : ''}
 - **Critical Issues:** ${report.issues.critical.length}
@@ -136,8 +138,8 @@ if (includePerformance) {
 | Metric | Mobile | Desktop |
 |--------|--------|---------|
 | Page Load Time | ${report.mobile.loadTime}ms | ${report.desktop.loadTime}ms |
-| Title | ${report.mobile.title} | ${report.desktop.title} |
-| Final URL | ${report.mobile.url} | ${report.desktop.url} |
+| Title | ${esc(report.mobile.title)} | ${esc(report.desktop.title)} |
+| Final URL | ${esc(report.mobile.url)} | ${esc(report.desktop.url)} |
 
 **Analysis:**
 `;
@@ -162,15 +164,15 @@ if (includeFunctional) {
 
 | Meta Tag | Value | Status |
 |----------|-------|--------|
-| og:title | ${report.metadata.ogTitle || 'Missing'} | ${report.metadata.ogTitle ? '✅' : '❌'} |
-| og:description | ${report.metadata.ogDescription || 'Missing'} | ${report.metadata.ogDescription ? '✅' : '❌'} |
-| og:image | ${report.metadata.ogImage || 'Missing'} | ${report.metadata.ogImage ? '✅' : '❌'} |
-| og:url | ${report.metadata.ogUrl || 'Missing'} | ${report.metadata.ogUrl ? '✅' : '❌'} |
-| og:type | ${report.metadata.ogType || 'Missing'} | ${report.metadata.ogType ? '✅' : '❌'} |
-| twitter:card | ${report.metadata.twitterCard || 'Missing'} | ${report.metadata.twitterCard ? '✅' : '❌'} |
-| twitter:title | ${report.metadata.twitterTitle || 'Missing'} | ${report.metadata.twitterTitle ? '✅' : '❌'} |
-| twitter:description | ${report.metadata.twitterDescription || 'Missing'} | ${report.metadata.twitterDescription ? '✅' : '❌'} |
-| twitter:image | ${report.metadata.twitterImage || 'Missing'} | ${report.metadata.twitterImage ? '✅' : '❌'} |
+| og:title | ${esc(report.metadata.ogTitle) || 'Missing'} | ${report.metadata.ogTitle ? '✅' : '❌'} |
+| og:description | ${esc(report.metadata.ogDescription) || 'Missing'} | ${report.metadata.ogDescription ? '✅' : '❌'} |
+| og:image | ${esc(report.metadata.ogImage) || 'Missing'} | ${report.metadata.ogImage ? '✅' : '❌'} |
+| og:url | ${esc(report.metadata.ogUrl) || 'Missing'} | ${report.metadata.ogUrl ? '✅' : '❌'} |
+| og:type | ${esc(report.metadata.ogType) || 'Missing'} | ${report.metadata.ogType ? '✅' : '❌'} |
+| twitter:card | ${esc(report.metadata.twitterCard) || 'Missing'} | ${report.metadata.twitterCard ? '✅' : '❌'} |
+| twitter:title | ${esc(report.metadata.twitterTitle) || 'Missing'} | ${report.metadata.twitterTitle ? '✅' : '❌'} |
+| twitter:description | ${esc(report.metadata.twitterDescription) || 'Missing'} | ${report.metadata.twitterDescription ? '✅' : '❌'} |
+| twitter:image | ${esc(report.metadata.twitterImage) || 'Missing'} | ${report.metadata.twitterImage ? '✅' : '❌'} |
 
 **Analysis:**
 `;
@@ -217,7 +219,7 @@ if (includeFunctional) {
   if (brokenLinks.length > 0) {
     markdown += '\n**Broken Links Detected:**\n\n';
     brokenLinks.slice(0, 10).forEach(link => {
-      markdown += `- ❌ [${link.text || 'No text'}](${link.href}) - Status: ${link.status}\n`;
+      markdown += `- ❌ [${esc(link.text) || 'No text'}](${link.href}) - Status: ${link.status}\n`;
     });
   }
 
@@ -228,7 +230,7 @@ if (includeFunctional) {
   const socialLinks = report.desktop.links?.filter(l => l.hasIcon && l.isExternal) || [];
   if (socialLinks.length > 0) {
     socialLinks.slice(0, 10).forEach(link => {
-      markdown += `- Icon: "${link.iconType}" → ${link.href}\n`;
+      markdown += `- Icon: "${esc(link.iconType)}" → ${esc(link.href)}\n`;
     });
   } else {
     markdown += '- No icon-based social media links detected\n';
@@ -265,7 +267,7 @@ if (includeFunctional) {
   if (brokenImages.length > 0) {
     markdown += '\n**Broken Images:**\n';
     brokenImages.slice(0, 5).forEach(img => {
-      markdown += `- ❌ ${img.src}\n`;
+      markdown += `- ❌ ${esc(img.src)}\n`;
     });
   }
 
@@ -273,14 +275,14 @@ if (includeFunctional) {
     markdown += '\n**Lazy-Loaded Images (Expected - Not Yet in Viewport):**\n';
     markdown += '📝 Note: These images use `loading="lazy"` and will load when scrolled into view. This is normal optimization and not a bug.\n';
     lazyLoadedImages.slice(0, 5).forEach(img => {
-      markdown += `- 📄 ${img.src.substring(0, 80)}...\n`;
+      markdown += `- 📄 ${esc(img.src.substring(0, 80))}...\n`;
     });
   }
 
   if (missingAlt.length > 0) {
     markdown += `\n**Images Missing Alt Text (Accessibility Issue):**\n`;
     missingAlt.slice(0, 10).forEach(img => {
-      markdown += `- ⚠️ ${img.src}\n`;
+      markdown += `- ⚠️ ${esc(img.src)}\n`;
     });
   }
 
@@ -291,7 +293,7 @@ if (includeFunctional) {
   if (lowResImages.length > 0) {
     markdown += `\n**Potentially Low-Resolution Images:**\n`;
     lowResImages.slice(0, 5).forEach(img => {
-      markdown += `- ⚠️ ${img.src.substring(0, 60)}... (Natural: ${img.width}x${img.height}, Displayed: ${img.displayWidth}x${img.displayHeight})\n`;
+      markdown += `- ⚠️ ${esc(img.src.substring(0, 60))}... (Natural: ${img.width}x${img.height}, Displayed: ${img.displayWidth}x${img.displayHeight})\n`;
     });
   }
 }
@@ -319,7 +321,7 @@ if (includeFunctional) {
   if (orphanedHeadings.length > 0) {
     markdown += `\n**Orphaned Words Detected (Typography Issue):**\n`;
     orphanedHeadings.slice(0, 10).forEach(h => {
-      markdown += `- ⚠️ ${h.tag.toUpperCase()}: "${h.text}" (last word: "${h.lastWord}")\n`;
+      markdown += `- ⚠️ ${h.tag.toUpperCase()}: "${esc(h.text)}" (last word: "${esc(h.lastWord)}")\n`;
     });
   }
 }
@@ -352,9 +354,9 @@ if (includeAccessibility) {
   if (report.desktop.a11y && report.desktop.a11y.length > 0) {
     markdown += '\n**Detailed Accessibility Issues:**\n';
     report.desktop.a11y.slice(0, 10).forEach(issue => {
-      markdown += `- ⚠️ ${issue.type}`;
-      if (issue.from && issue.to) markdown += ` (${issue.from} → ${issue.to})`;
-      if (issue.element) markdown += ` - ${issue.element}`;
+      markdown += `- ⚠️ ${esc(issue.type)}`;
+      if (issue.from && issue.to) markdown += ` (${esc(issue.from)} → ${esc(issue.to)})`;
+      if (issue.element) markdown += ` - ${esc(issue.element)}`;
       markdown += '\n';
     });
   }
@@ -383,7 +385,7 @@ if (includePerformance) {
   if (desktopErrors.length > 0) {
     markdown += '\n**Console Errors (Desktop):**\n';
     desktopErrors.slice(0, 5).forEach(err => {
-      markdown += `- ❌ ${err.text}\n`;
+      markdown += `- ❌ ${esc(err.text)}\n`;
     });
   }
 
@@ -396,7 +398,7 @@ if (includePerformance) {
   if (report.desktop.network && report.desktop.network.length > 0) {
     markdown += '\n**Failed Network Requests:**\n';
     report.desktop.network.slice(0, 10).forEach(err => {
-      markdown += `- ❌ HTTP ${err.status}: ${err.url}\n`;
+      markdown += `- ❌ HTTP ${err.status}: ${esc(err.url)}\n`;
     });
   }
 }
@@ -414,9 +416,9 @@ if (report.issues.critical.length === 0) {
   markdown += '✅ No critical issues found!\n\n';
 } else {
   report.issues.critical.forEach((issue, i) => {
-    markdown += `${i + 1}. **${issue.category}**: ${issue.issue}\n`;
-    markdown += `   - Impact: ${issue.impact}\n`;
-    if (issue.device) markdown += `   - Device: ${issue.device}\n`;
+    markdown += `${i + 1}. **${esc(issue.category)}**: ${esc(issue.issue)}\n`;
+    markdown += `   - Impact: ${esc(issue.impact)}\n`;
+    if (issue.device) markdown += `   - Device: ${esc(issue.device)}\n`;
     markdown += '\n';
   });
 }
@@ -429,9 +431,9 @@ if (report.issues.high.length === 0) {
   markdown += '✅ No high priority issues found!\n\n';
 } else {
   report.issues.high.slice(0, 15).forEach((issue, i) => {
-    markdown += `${i + 1}. **${issue.category}**: ${issue.issue}\n`;
-    markdown += `   - Impact: ${issue.impact}\n`;
-    if (issue.device) markdown += `   - Device: ${issue.device}\n`;
+    markdown += `${i + 1}. **${esc(issue.category)}**: ${esc(issue.issue)}\n`;
+    markdown += `   - Impact: ${esc(issue.impact)}\n`;
+    if (issue.device) markdown += `   - Device: ${esc(issue.device)}\n`;
     markdown += '\n';
   });
   if (report.issues.high.length > 15) {
@@ -447,9 +449,9 @@ if (report.issues.medium.length === 0) {
   markdown += '✅ No medium priority issues found!\n\n';
 } else {
   report.issues.medium.slice(0, 15).forEach((issue, i) => {
-    markdown += `${i + 1}. **${issue.category}**: ${issue.issue}\n`;
-    markdown += `   - Impact: ${issue.impact}\n`;
-    if (issue.device) markdown += `   - Device: ${issue.device}\n`;
+    markdown += `${i + 1}. **${esc(issue.category)}**: ${esc(issue.issue)}\n`;
+    markdown += `   - Impact: ${esc(issue.impact)}\n`;
+    if (issue.device) markdown += `   - Device: ${esc(issue.device)}\n`;
     markdown += '\n';
   });
   if (report.issues.medium.length > 15) {
@@ -465,8 +467,8 @@ if (report.issues.low.length === 0) {
   markdown += '✅ No low priority issues found!\n\n';
 } else {
   report.issues.low.forEach((issue, i) => {
-    markdown += `${i + 1}. **${issue.category}**: ${issue.issue}\n`;
-    markdown += `   - Impact: ${issue.impact}\n`;
+    markdown += `${i + 1}. **${esc(issue.category)}**: ${esc(issue.issue)}\n`;
+    markdown += `   - Impact: ${esc(issue.impact)}\n`;
     markdown += '\n';
   });
 }
