@@ -20,7 +20,7 @@ if (!fs.existsSync(inputFile)) {
 
 const report = JSON.parse(fs.readFileSync(inputFile, 'utf8'));
 
-const esc = (val) => String(val ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const esc = (val) => String(val ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\r?\n/g, ' ').replace(/\|/g, '&#124;');
 
 // Determine test type based on what data is available
 const hasPerformanceData = report.mobile?.console || report.desktop?.console || report.mobile?.network || report.desktop?.network;
