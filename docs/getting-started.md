@@ -1,6 +1,6 @@
-# Getting Started with kosh
+# Getting Started with amplify
 
-A step-by-step guide to installing and running your first test with kosh.
+A step-by-step guide to installing and running your first test with amplify.
 
 ## What you'll need
 
@@ -10,66 +10,66 @@ Before you start, make sure you have the following installed:
 
 2. **Node.js:** Used for generating reports. Download it from [nodejs.org](https://nodejs.org) if you don't already have it. The LTS version is fine.
 
-3. **Git:** Used to download the kosh code. Most Macs have it pre-installed. To check, open Terminal and type `git --version`. If you see a version number, you're good.
+3. **Git:** Used to download the amplify code. Most Macs have it pre-installed. To check, open Terminal and type `git --version`. If you see a version number, you're good.
 
 ## Step 1: Clone the repository
 
 Open your Terminal and run:
 
 ```bash
-git clone https://github.com/a8cteam51/kosh.git
-cd kosh
+git clone https://github.com/a8cteam51/amplify.git
+cd amplify
 ```
 
-This downloads kosh to a folder called `kosh` in whatever directory your Terminal is currently in (usually your home folder), then moves into it.
+This downloads amplify to a folder called `amplify` in whatever directory your Terminal is currently in (usually your home folder), then moves into it.
 
 ### Alternative: Using the GitHub CLI
 
 If you have the [GitHub CLI](https://cli.github.com/) installed, you can use it instead:
 
 ```bash
-gh repo clone a8cteam51/kosh
-cd kosh
+gh repo clone a8cteam51/amplify
+cd amplify
 ```
 
 If you don't have it yet, you can install it with `brew install gh` and then run `gh auth login` to sign in.
 
 ## Step 2: Start Claude Code with the plugin
 
-From inside the `kosh` folder, run:
+From inside the `amplify` folder, run:
 
 ```bash
 claude --plugin-dir .
 ```
 
-This starts Claude Code with kosh loaded as a plugin.
+This starts Claude Code with amplify loaded as a plugin.
 
 ### Trust the project settings
 
-The first time you run this, Claude Code will ask you to trust the project's settings. **Type "yes" or press Enter to accept.** This pre-approves the browser tools that kosh needs (navigating to pages, taking screenshots, clicking links, etc.) so you won't have to approve each one individually during a test.
+The first time you run this, Claude Code will ask you to trust the project's settings. **Type "yes" or press Enter to accept.** This pre-approves the browser tools that amplify needs (navigating to pages, taking screenshots, clicking links, etc.) so you won't have to approve each one individually during a test.
 
 If you accidentally skip this step, you'll get a permission prompt for every browser action during testing. If that happens, exit (`/exit`) and start again.
 
 ## Step 3: Run a test
 
-kosh has three test commands. Each one takes a URL — the site you want to test.
+amplify has three test commands. Each one takes a URL — the site you want to test.
 
 **Functional & design test:** Checks user journeys, layout, links, metadata, and content:
 ```
-/kosh:functional-design https://example.com
+/amplify:functional-design https://example.com
 ```
 
 **Performance test:** Checks load times, console errors, and network health:
 ```
-/kosh:performance https://example.com
+/amplify:performance https://example.com
 ```
 
 **Accessibility test:** Checks WCAG 2.2 Level AA compliance (headings, alt text, contrast, keyboard navigation):
 ```
-/kosh:a11y https://example.com
+/amplify:a11y https://example.com
 ```
 
-Replace `https://example.com` with the URL of the site you want to test. The test will take a few minutes — kosh opens a real browser, visits 4-6+ pages, and runs checks on each one.
+Replace `https://example.com` with the URL of the site you want to test. The test will take a few minutes — amplify opens a real browser, visits 4-6+ pages, and runs checks on each one.
 
 When it's done, you'll find the results in the `reports/` folder as both a JSON file and a formatted Markdown report.
 
@@ -90,7 +90,7 @@ The slash commands are a starting point. Once a test has run, you're in a live s
 
 ### Dig into a specific page or flow
 
-If a finding catches your eye, or if a lot of changes were made to a particular page or user flow, ask kosh to investigate further:
+If a finding catches your eye, or if a lot of changes were made to a particular page or user flow, ask amplify to investigate further:
 
 ```
 Can you look more closely at the checkout flow?
@@ -98,7 +98,7 @@ Can you look more closely at the checkout flow?
 
 ### Ask follow-up questions about findings
 
-kosh has the full report in context, so you can ask about anything in it:
+amplify has the full report in context, so you can ask about anything in it:
 
 ```
 What does "missing landmark regions" actually mean for users?
@@ -110,7 +110,7 @@ Are any of the critical issues related to each other, or are they independent pr
 
 ### Run a focused check on something specific
 
-You don't have to run a full test. You can ask kosh to check one thing:
+You don't have to run a full test. You can ask amplify to check one thing:
 
 ```
 Can you visit https://example.com/blog and check whether the post images all have meaningful alt text?
@@ -125,17 +125,17 @@ I want to know if the navigation is keyboard accessible on mobile — can you ch
 After running all three tests against the same site, you can merge them into one comprehensive report:
 
 ```
-/kosh:merge
+/amplify:merge
 ```
 
 This creates a single Markdown document covering functional, performance, and accessibility findings.
 
 ## Specifying the environment
 
-If you're testing a local or development site (not the live production site), you can tell kosh so it doesn't flag expected dev-environment things as bugs:
+If you're testing a local or development site (not the live production site), you can tell amplify so it doesn't flag expected dev-environment things as bugs:
 
 ```
-/kosh:functional-design https://mysite.test local
+/amplify:functional-design https://mysite.test local
 ```
 
 The options are `local`, `development`, `staging`, or `production`.
@@ -144,7 +144,7 @@ The options are `local`, `development`, `staging`, or `production`.
 - **Staging:** Should look like the live site. Test data and debug output are flagged because they shouldn't ship.
 - **Production:** Everything is flagged.
 
-If you don't specify, kosh guesses from the URL (e.g., `.test` or `.local` domains are treated as local) and defaults to production if it can't tell.
+If you don't specify, amplify guesses from the URL (e.g., `.test` or `.local` domains are treated as local) and defaults to production if it can't tell.
 
 ## Tips
 

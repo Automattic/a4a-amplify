@@ -1,11 +1,11 @@
 {
-  "name": "kosh",
-  "description": "Testing system for WordPress sites — functional, performance, and accessibility tests via Playwright MCP",
+  "name": "amplify",
+  "description": "Amplify by Automattic for Agencies — audits agency websites across conversion, trust, SEO, and AI readiness criteria and returns a scored, actionable report",
   "version": "1.0.0",
   "author": {
-    "name": "katodea"
+    "name": "Automattic for Agencies"
   },
-  "repository": "https://github.com/a8cteam51/kosh",
+  "repository": "https://github.com/Automattic/a4a-amplify",
   "commands": ["./commands/"],
   "hooks": "./hooks/hooks.json",
   "mcpServers": "./.mcp.json"

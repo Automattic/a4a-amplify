@@ -1,6 +1,6 @@
-# kosh — Claude Code Plugin for WordPress QA
+# amplify — Claude Code Plugin for WordPress QA
 
-kosh is a Claude Code plugin that runs functional, performance, and accessibility tests against live WordPress sites using Playwright MCP browser automation.
+amplify is a Claude Code plugin that runs functional, performance, and accessibility tests against live WordPress sites using Playwright MCP browser automation.
 
 ## How it works
 

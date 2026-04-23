@@ -1,12 +1,12 @@
-# <img width="30" alt="kosh" src="https://github.com/user-attachments/assets/04072d21-359e-4b50-ad08-fe4056e1a077" /> kosh 
+# <img width="30" alt="amplify" src="https://github.com/user-attachments/assets/04072d21-359e-4b50-ad08-fe4056e1a077" /> amplify 
 
-<img alt="kosh; text reads one moment of perfect beauty" width="300" src="https://github.com/user-attachments/assets/db9737bb-7ea8-4dbf-b539-e503c29bb9a5">
+<img alt="amplify; text reads one moment of perfect beauty" width="300" src="https://github.com/user-attachments/assets/db9737bb-7ea8-4dbf-b539-e503c29bb9a5">
 
 A Claude Code plugin for testing WordPress sites. Run automated functional, performance, and accessibility audits against any live URL using real browser automation via Playwright MCP.
 
 ## What it does
 
-Kosh tests a site across three dimensions:
+Amplify tests a site across three dimensions:
 
 - **Functional & design:** User journeys, layout consistency, link validation, OpenGraph metadata, content quality
 - **Performance:** Load times, console errors, network failures, mixed content
@@ -17,8 +17,8 @@ Each test visits 4–6+ pages, simulates real user behavior, and outputs a struc
 ## Quick start
 
 ```bash
-git clone https://github.com/a8cteam51/kosh.git
-cd kosh
+git clone https://github.com/a8cteam51/amplify.git
+cd amplify
 claude --plugin-dir .
 ```
 
@@ -27,9 +27,9 @@ On first run, Claude Code will ask you to trust this project's settings — **ac
 Then run a test:
 
 ```
-/kosh:functional-design https://example.com
-/kosh:performance https://example.com
-/kosh:a11y https://example.com
+/amplify:functional-design https://example.com
+/amplify:performance https://example.com
+/amplify:a11y https://example.com
 ```
 
 For detailed setup instructions (including troubleshooting), see the [Getting Started guide](docs/getting-started.md).
@@ -37,7 +37,7 @@ For detailed setup instructions (including troubleshooting), see the [Getting St
 ## Project structure
 
 ```
-commands/        Slash commands (/kosh:a11y, /kosh:functional-design, /kosh:performance)
+commands/        Slash commands (/amplify:a11y, /amplify:functional-design, /amplify:performance)
 skills/          Full testing procedures for each command
 schemas/         JSON schemas for report validation
 scripts/         Report generation and merge scripts
